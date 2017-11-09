@@ -3,7 +3,27 @@ var pending = 0;
 var errors = 0;
 var cnt = 0;
 
-function sumCheck(){
+$('td[url]').each( function(){
+
+    var url = $( this ).attr('url');
+    if ( ! url ) return;
+    var file = $( this ).attr('file') || '/favicon.ico';
+
+    var statusResult = $( this ).siblings();
+    pending++;
+    cnt++;
+
+    var p = new Ping({ favicon: file });
+    p.ping( url, function(err, data) {
+      if (err) {
+          data = data + " " + err;
+          statusResult.html( '  ERROR' );
+          statusResult.addClass('error-result');
+          errors++;
+      }
+      else {
+          statusResult.html( '  OK' );
+      }
       setTimeout(function(){
           pending--;
           if ( pending == 0 ) {
@@ -15,31 +35,6 @@ function sumCheck(){
               }
           }
       }, 800 );
-}
-
-$('td[url]').each( function(){
-
-    var url = $( this ).attr('url');
-    if ( ! url ) return;
-
-    var statusResult = $( this ).siblings();
-    pending++;
-    cnt++;
-
-    $.ajax({
-        url: url,
-        type: 'HEAD',
-        success: function(result){
-            statusResult.html( '  OK ' );
-            sumCheck();
-        },
-        error: function(result){
-          // data = data + " " + err;
-          statusResult.html( '  ERROR' );
-          statusResult.addClass('error-result');
-          errors++;
-          sumCheck();
-        }
     });
 });
 
